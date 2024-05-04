@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<head>
+	<title>JS Bluetooth Connect</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<h1>Koneksi ke Bluetooth Printer dari Web Browser</h1>
+
+	<p>
+		Sebelum memulai, pastikan anda sudah meng-enable web-bluetooth.<br>
+		pada Chrome, anda dapat memanggil dari address bar:<br>
+		<code>chrome://flags/#enable-web-bluetooth</code><br>
+		<code>#enable-web-bluetooth-new-permissions-backend</code><br>
+		dan pilih Enable.<br>
+		<br>
+		Untuk linux, aktifkan juga:<br>
+		<code>chrome://flags/#enable-experimental-web-platform-features</code><br>
+		<br>
+		Untuk keterangan lebih lanjut, silahkan cek di 
+		<a href=""https://github.com/WebBluetoothCG/web-bluetooth/blob/main/implementation-status.md">https://github.com/WebBluetoothCG/web-bluetooth/blob/main/implementation-status.md</a>
+
+		
+	</p>
+
+	<p>
+		<button id="btn_connect">Connect to Bluetooth Printer</button>
+	</p>
+	<p id="txt_error" style="color:red"></p>
+	<div id="txt_debug"></div>
+
+	<hr>
+	[<a href="index.html">home</a>]
+</body>
+<script type="module">
+
+	import * as mainprog from './jsbt-connect.mjs'
+	window.$mainprog = mainprog 
+
+	window.addEventListener('load', async (evt)=>{
+		await window.$mainprog.init();
+	})
+
+</script>	
+</html>
