@@ -17,7 +17,8 @@ async function btn_senddata_click(evt) {
 	try {
 		txt_error.innerHTML = "";
 		if (window.$devHandle==null) {
-			window.$devHandle = await navigator.bluetooth.requestDevice({ filters: [{ services: [BT_SERVICE]}] })
+			// window.$devHandle = await navigator.bluetooth.requestDevice({ filters: [{ services: [BT_SERVICE]}] })
+			window.$devHandle = await navigator.bluetooth.requestDevice({optionalServices:[BT_SERVICE], acceptAllDevices:true })
 			txt_debug.innerHTML = `Selected Device: ${window.$devHandle.name}`
 		} else {
 			txt_debug.innerHTML = `Already Paired: ${window.$devHandle.name}`
@@ -27,10 +28,21 @@ async function btn_senddata_click(evt) {
 		
 		var server = await window.$devHandle.gatt.connect()
 		var service = await server.getPrimaryService(BT_SERVICE)
-		var channel = await service.getCharacteristic(BT_WRITE)
 
-		await channel.writeValueWithResponse(new TextEncoder('utf-8').encode(printdata))
-		
+
+		var characteristics = await service.getCharacteristics()
+		var used_character_uuid = null;
+		for (var character of characteristics) {
+			if (character.properties.write) {
+				used_character_uuid = character.uuid
+				break;
+			}
+		}
+
+		if (used_character_uuid!=null) {
+			var channel = await service.getCharacteristic(used_character_uuid)
+			await channel.writeValueWithResponse(new TextEncoder('utf-8').encode(printdata))
+		}
 
 	} catch (err) {
 		txt_error.innerHTML = err.message;

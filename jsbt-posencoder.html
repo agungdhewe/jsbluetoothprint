@@ -4,5 +4,28 @@
 </head>
 <body>
 	<h1>Mencetak ke Printer Bluetooth menggunakan library POS Encoder dari Web Browser</h1>
+	<div>
+		<p>
+		Untuk mempermudah dan pengembangan, kita bisa menggunakan library esc-pos-encoder,
+		yang bisa diambil dari <a href="https://github.com/NielsLeenheer/EscPosEncoder/blob/master/dist/esc-pos-encoder.esm.js">https://github.com/NielsLeenheer/EscPosEncoder/blob/master/dist/esc-pos-encoder.esm.js</a>
+		</p>
+		<p>
+		atau dari npm di <a href="https://www.npmjs.com/package/esc-pos-encoder">https://www.npmjs.com/package/esc-pos-encoder</a>	
+		</p>
+		<p>
+			Untuk menggunakan library ini, pada modul lakukan import sbb:<br><br>
+			<code>
+				import EscPosEncoder from './esc-pos-encoder.esm.js'<br>
+				<br>
+				const posEncoder = new EscPosEncoder({<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;width: 36   //lebar kertas<br>
+				})<br>
+			</code>
+		</p>
+	</div>
+
+
+	<hr>
+	[<a href="index.html">home</a>]	
 </body>
 </html>

@@ -33,6 +33,8 @@ export async function init() {
 }
 
 async function btn_print_normal_click(evt) {
+	txt_error.innerHTML = '';
+
 	try {
 		var txttoprint = txt_inputtext.value
 		var channel = await getPrinterChannel()
@@ -54,6 +56,8 @@ async function btn_print_normal_click(evt) {
 }
 
 async function btn_print_bold_click(evt) {
+	txt_error.innerHTML = '';
+
 	try {
 		/*
 		===format font===
@@ -100,6 +104,8 @@ async function btn_print_bold_click(evt) {
 
 
 async function btn_print_large_click(evt) {
+	txt_error.innerHTML = '';
+
 	try {
 
 		var txttoprint = txt_inputtext.value
@@ -123,6 +129,8 @@ async function btn_print_large_click(evt) {
 }
 
 async function btn_print_variasi_click(evt) {
+	txt_error.innerHTML = '';
+
 	try {
 
 		var txttoprint = txt_inputtext.value
@@ -165,6 +173,8 @@ async function btn_print_variasi_click(evt) {
 }
 
 async function btn_linefeed_click(evt) {
+	txt_error.innerHTML = '';
+	
 	try {
 		var channel = await getPrinterChannel()
 		var DATA = [
@@ -187,18 +197,30 @@ async function btn_linefeed_click(evt) {
 async function getPrinterChannel() {
 	try {
 		if (window.$devHandle==null) {
-			window.$devHandle = await navigator.bluetooth.requestDevice({ filters: [{ services: [BT_SERVICE]}] })
+			// window.$devHandle = await navigator.bluetooth.requestDevice({ filters: [{ services: [BT_SERVICE]}] })
+			window.$devHandle = await navigator.bluetooth.requestDevice({optionalServices:[BT_SERVICE], acceptAllDevices:true })
 			txt_debug.innerHTML = `Selected Device: ${window.$devHandle.name}`
 		} else {
 			txt_debug.innerHTML = `Already Paired: ${window.$devHandle.name}`
 		}
-		
 
 		var server = await window.$devHandle.gatt.connect()
 		var service = await server.getPrimaryService(BT_SERVICE)
-		var channel = await service.getCharacteristic(BT_WRITE)
+		var characteristics = await service.getCharacteristics()
+		var used_character_uuid = null;
+		for (var character of characteristics) {
+			if (character.properties.write) {
+				used_character_uuid = character.uuid
+				break;
+			}
+		}
 
-		return channel
+		if (used_character_uuid!=null) {
+			var channel = await service.getCharacteristic(used_character_uuid)
+			return channel
+		}
+		
+		return null
 	} catch (err) {
 		throw err
 	}	
