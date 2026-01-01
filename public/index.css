@@ -1,0 +1,8 @@
+.hidden {
+	display: none !important;
+}
+
+#errorbox {
+	border: 1px solid red;
+	background: rgba(255,0,0,.3);
+}

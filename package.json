@@ -1,0 +1,13 @@
+{
+  "name": "jsbluetoothprint",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "server": "node .",
+    "clean": "kill -9 $(lsof -t -i :3000)"
+  }
+}

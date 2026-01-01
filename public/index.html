@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Print via Bluetooth</title>
+		<link rel="stylesheet" type="text/css" href="index.css">   
+	</head>
+	<body>
+		<h1>Print label via Bluetooth</h1>
+		<div id="errorbox" class="hidden">
+		</div>
+	
+		<div>
+			<!-- <img id="imgLogo" src="tfi.jpg" width="328px" height="101px"> -->
+			<img id="imgLogo" src="fgtacloud.jpg" width="128px" height="128px">
+		</div>
+
+		<button id="btnConnect">Connect</button>
+
+		
+		<table>
+			<tr>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Protocol</td>
+				<td>
+					<select id="optProto">
+						<option value="TSPL" selected>TSPL</option>
+						<option value="ESC/POS" selected>ESC/POS</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top">Data</td>
+				<td>
+					<textarea id="txtData" style="width: 400px; height: 200px">
+					
+					
+					</textarea>
+				</td>
+			</tr>	
+			<tr>
+				<td></td>
+				<td><button id="btnTestPrint">Test Print</button></td>
+			</tr>		
+		</table>
+
+		
+
+
+	
+	</body>
+	<script type="module">
+		import program from './index.mjs'
+
+		window.addEventListener("load", async (event) => {
+			try {
+				const $app = new program();
+				await $app.main();
+			} catch (err) {
+				console.error(err)
+				const divError = document.createElement('div')
+				divError.innerHTML = '<div><b>Error</b></div><div>' + err.message + '</div>'
+				divError.style.backgroundColor = 'rgba(255, 0, 0, 0.1)'
+				divError.style.borderColor = 'red'
+				divError.style.borderWidth = '1px'
+				document.body.prepend(divError);
+			} 
+		})
+
+	</script>
+</html>
