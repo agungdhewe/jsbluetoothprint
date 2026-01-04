@@ -2,6 +2,8 @@ const btnConnect = document.getElementById('btnConnect')
 const btnTestPrint = document.getElementById('btnTestPrint')
 const txtData = document.getElementById('txtData')
 const optProto = document.getElementById('optProto')
+const errorBox = document.getElementById('errorbox')
+const statusBox = document.getElementById('statusbox')
 
 
 export const BT_SERVICE = '000018f0-0000-1000-8000-00805f9b34fb';
@@ -70,21 +72,38 @@ async function btnConnect_click(self, evt) {
 	// cari RPP02N-7D90_Ble
 	// service: 00001101-0000-1000-8000-00805f9b34fb
 
+	statusBox.classList.add('hidden')
+	errorBox.classList.add('hidden')
+
+	btnConnect.innerHTML = 'connecting...'
+	btnConnect.disabled = true
 
 
+	const BT_SERVICES = [
+		// '0000fff0-0000-1000-8000-00805f9b34fb', 
+		// '0000eee0-0000-1000-8000-00805f9b34fb',
+		
+		//'000018f0-0000-1000-8000-00805f9b34fb', 
+		//'e7810a71-73ae-499d-8c15-faa9aef0c3f2'
 
-	const BT_SERVICES = ['0000fff0-0000-1000-8000-00805f9b34fb', '0000eee0-0000-1000-8000-00805f9b34fb'];
+		'000018f0-0000-1000-8000-00805f9b34fb', 
+		'0000fee7-0000-1000-8000-00805f9b34fb', 
+		'e7810a71-73ae-499d-8c15-faa9aef0c3f2'
+	];
+
+
 
 	try {
 		
 
 		if (window.writeChar==null) {
-			const device = await navigator.bluetooth.requestDevice({filters:[{ name: 'RPP02N-7D91_Ble' }], optionalServices:BT_SERVICES})
-			// const device = await navigator.bluetooth.requestDevice({optionalServices:BT_SERVICES, acceptAllDevices:true })
+			// const device = await navigator.bluetooth.requestDevice({filters:[{ name: 'RPP02N-7D91_Ble' }], optionalServices:BT_SERVICES})
+			const device = await navigator.bluetooth.requestDevice({optionalServices:BT_SERVICES, acceptAllDevices:true })
 			const server = await device.gatt.connect();
 			await new Promise(r => setTimeout(r, 500))
 
 			console.log('connected')	
+			
 
 			
 			for (const uuid of BT_SERVICES) {
@@ -98,48 +117,35 @@ async function btnConnect_click(self, evt) {
 
 					if (window.writeChar) break
 				} catch (err) {
-					console.log(e)
+					//console.log(e)
 				}
 			}
 
 			if (!window.writeChar) {
-				console.error('ESC/POS write characteristic not found')
-				return
+				throw new Error('Printer write characteristic not found')
 			}
 
-			console.log(window.writeChar)
+
+			statusBox.classList.remove('hidden')
+			statusBox.innerHTML = `${device.name} connected.<br>`
+
+			btnTestPrint.disabled = false
+
+			console.log(device)
 		} else {
 			console.log('Already Connected')
 		}
 
-
-
-		
-
-
-		
-
-		// const encoder = new TextEncoder()
-		// const tspl = `
-		// 	SIZE 38 mm,35 mm
-		// 	GAP 3 mm,0
-		// 	REFERENCE 0,0
-		// 	DIRECTION 0
-		// 	CLS
-
-		// 	BARCODE 10,10,"128",80,1,0,2,4,"TM34567890123"
-
-		// 	PRINT 1
-		// `
-		// await writeChunks(writeChar, encoder.encode(tspl))
-
-
-		await writeChunks(writeChar, escposText('TEST 1\nBARIS2\nBARIS3'))
-
-	
+		await writeChunks(writeChar, escposText('Printer Already Connected.\n\n'))
 
 	} catch (err) {
 		console.log(err.message)
+
+		errorBox.classList.remove('hidden')
+		errorBox.innerHTML = err.message
+	} finally {
+		btnConnect.innerHTML = 'Connect'
+		btnConnect.disabled = false
 	}
 	
 }
@@ -153,9 +159,7 @@ function escposText(str) {
 
 async function writeChunks(char, data, size = 20) {
   for (let i = 0; i < data.length; i += size) {
-    await char.writeValueWithoutResponse(
-      data.slice(i, i + size)
-    )
+    await char.writeValueWithoutResponse(data.slice(i, i + size))
     await new Promise(r => setTimeout(r, 30))
   }
 }
@@ -261,56 +265,4 @@ async function getLogo(maxWidthDots = 384, threshold = 180) {
     throw err;
   }
 }
-
-
-// async function getLogo(maxWidthDots = 384, threshold = 180) {
-// 	const image = document.getElementById('imgLogo');
-
-
-// 	var canvas = document.createElement('canvas');
-// 	canvas.width = image.width;
-// 	canvas.height = image.height;
-
-// 	var context = canvas.getContext("2d");
-// 	context.drawImage(image, 0, 0, canvas.width, canvas.height);
-// 	try {
-// 		var imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
-// 		if (imageData == null) {
-// 			throw new Error('No image to print!');
-// 		}
-
-// 		var printData = new Uint8Array(canvas.width / 8 * canvas.height + 8);
-// 		 var offset = 0;
-
-
-// 		printData[0] = 29;  // Print raster bitmap
-// 		printData[1] = 118; // Print raster bitmap
-// 		printData[2] = 48; // Print raster bitmap
-// 		printData[3] = 0;  // Normal 203.2 DPI
-// 		printData[4] = canvas.width / 8; // Number of horizontal data bits (LSB)
-// 		printData[5] = 0; // Number of horizontal data bits (MSB)
-// 		printData[6] = canvas.height % 256; // Number of vertical data bits (LSB)
-// 		printData[7] = canvas.height / 256;  // Number of vertical data bits (MSB)
-// 		offset = 7;
-		
-// 		// Loop through image rows in bytes
-// 		for (let i = 0; i < canvas.height; ++i) {
-// 			for (let k = 0; k < canvas.width / 8; ++k) {
-// 				let k8 = k * 8;
-// 				//  Pixel to bit position mapping
-// 				printData[++offset] = getDarkPixel(canvas, imageData, k8 + 0, i) * 128 + getDarkPixel(canvas, imageData, k8 + 1, i) * 64 +
-// 							getDarkPixel(canvas, imageData, k8 + 2, i) * 32 + getDarkPixel(canvas, imageData, k8 + 3, i) * 16 +
-// 							getDarkPixel(canvas, imageData, k8 + 4, i) * 8 + getDarkPixel(canvas, imageData, k8 + 5, i) * 4 +
-// 							getDarkPixel(canvas, imageData, k8 + 6, i) * 2 + getDarkPixel(canvas, imageData, k8 + 7, i);
-// 			}
-// 		}
-
-// 		return printData;
-
-// 	} catch (err) {
-// 		throw err;
-// 	}
-
-// }
-
 

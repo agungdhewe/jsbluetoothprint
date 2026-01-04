@@ -6,3 +6,8 @@
 	border: 1px solid red;
 	background: rgba(255,0,0,.3);
 }
+
+#statusbox {
+	border: 1px solid rgb(1, 64, 1);
+	background-color: rgba(11, 159, 31, 0.373);
+}
